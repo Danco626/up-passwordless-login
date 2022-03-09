@@ -263,19 +263,9 @@
   <script>
     window.addEventListener('load', function () {
 
-      //  var config = JSON.parse(
-      //    decodeURIComponent(escape(window.atob('@@config@@')))
-      //  );
-
-        var config = {
-        auth0Domain: 'danco.auth0.com',
-        clientID: "jQjR4vEb9OOJFRl9GxwUmET8zuNy8Ukb",
-        callbackURL: "http://localhost:4200/callback",
-        internalOptions: {          
-        },
-        authorizationServer: {issuer: ""},
-        extraParams: {              }
-      };
+       var config = JSON.parse(
+         decodeURIComponent(escape(window.atob('@@config@@')))
+       );       
 
 
       var leeway = config.internalOptions.leeway;
