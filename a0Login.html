@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Sign In with Auth0</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+</head>
+<style>
+  body,
+  html {
+    height: 100%;
+    background-color: #001426;
+  }
+
+  .login-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    top: 25%;
+  }
+
+  .login-box {
+    position: static;
+    width: -webkit-min-content;
+    width: -moz-min-content;
+    width: min-content;
+    margin: 1em auto;
+    border-radius: 5px;
+    border-bottom-left-radius: 5%;
+    border-bottom-right-radius: 5%;
+    width: 350px;
+  }
+
+  .login-header {
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    text-align: center;
+    background-color: #0054a1;
+    position: relative;
+    height: 100%;
+    padding-top: 10%;
+    padding-bottom: 10%;
+    margin: 0 auto;
+    flex-direction: column;
+  }
+
+  .login-header img {
+    width: 150px;
+  }
+
+  #alertMessage {
+    display: none;
+    overflow-wrap: break-word;
+  }
+
+  .alert {
+    margin-bottom: 0%;
+    width: 100%
+  }
+
+  /* Style the tab */
+  .tab {
+    overflow: hidden;
+    border: 1px solid #ccc;
+    background-color: #f1f1f1;
+    text-align: center;
+  }
+
+  /* Style the buttons inside the tab */
+  .tab button {
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.3s;
+    font-size: 14px;
+  }
+
+  /* Change background color of buttons on hover */
+  .tab button:hover {
+    background-color: #ddd;
+  }
+
+  /* Create an active/current tablink class */
+  .tab button:active {
+    background-color: #ccc;
+  }
+
+  .activeTab {
+    background-color: #ccc;
+  }
+
+  .tabcontent {
+    background-color: white;
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    border-top: none;
+    padding-top: 10%;
+  }
+
+  .tabcontent .input-group {
+    padding-bottom: 5%;
+  }
+
+  .login-button-container {
+    overflow: hidden;
+    height: 70px;
+    border-bottom-left-radius: 5%;
+    border-bottom-right-radius: 5%;
+  }
+
+  .login-button {
+    height: 100%;
+    width: 100%;
+    border: 1px solid #004a4d;
+    background-color: #004a4d;
+    color: white;
+  }
+
+  .button-as-link {
+    background: none !important;
+    border: none;
+    padding: 0 !important;
+    color: #069;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  .hideOnLoad {
+    display: none;
+  }
+</style>
+
+<body>
+  <div class="login-container">
+    <div class="login-box">
+      <div class="login-header">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Logo_de_Auth0.svg/2560px-Logo_de_Auth0.svg.png">
+      </div>
+      <!--Navigation Tabs-->
+      <div id="tab-container" class="tab">
+        <button id="usernameTab" class="tablinks activeTab">Email/Pass</button>
+        <button id="emailPwordlessTab" class="tablinks">Email</button>
+        <button id="smsTab" class="tablinks">SMS</button>
+      </div>
+      <div id="alertMessage" class="alert alert-danger"></div>
+
+      <!--Email/password form-->
+      <div id="loginForm">
+        <form class="loginForm">
+          <div id="form" class="tabcontent">
+            <div class="input-group input-group-lg">
+              <span class="input-group-addon" id="basic-addon1"><span
+                  class="glyphicon glyphicon-envelope"></span></span>
+              <input id="email" type="text" class="form-control" placeholder="yours@example.com"
+                aria-describedby="basic-addon1">
+            </div>
+            <div class="input-group input-group-lg">
+              <span class="input-group-addon" id="basic-addon1"><span class="glyphicon glyphicon-lock"></span></span>
+              <input id="password" type="password" class="form-control" placeholder="your password"
+                aria-describedby="basic-addon1">
+            </div>
+            <div class="input-group input-group-lg">
+              <button id="forgotPasswordNavBtn" class="button-as-link" type="button">Forgot password?</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+       <!--Forgot password-->
+       <div id="forgotPasswordForm" class="hideOnLoad">
+        <form>
+          <div id="form" class="tabcontent">
+            <div class="input-group input-group-lg">
+              <span class="input-group-addon" id="basic-addon1"><span
+                  class="glyphicon glyphicon-envelope"></span></span>
+              <input id="forgotPasswordEmail" type="text" class="form-control" placeholder="yours@example.com"
+                aria-describedby="basic-addon1">
+            </div>
+            <!-- <div class="input-group input-group-lg">
+              <button id="backToLoginBtn" class="button-as-link" type="button">Login</button>
+            </div> -->
+          </div>
+        </form>
+      </div>
+
+      <!--Email passwordless form-->
+      <div id="emailPwordless" class="hideOnLoad">
+        <form>
+          <div id="form" class="tabcontent">
+            <div class="input-group input-group-lg">
+              <span class="input-group-addon" id="basic-addon1"><span
+                  class="glyphicon glyphicon-envelope"></span></span>
+              <input id="emailPless" type="text" class="form-control" placeholder="yours@example.com"
+                aria-describedby="basic-addon1">
+            </div>
+            <div class="input-group input-group-lg">
+              <span class="input-group-addon" id="basic-addon1"><span
+                  class="glyphicon glyphicon-envelope"></span></span>
+              <select name="emailType" id="emailType" class="form-control" aria-describedby="basic-addon1">
+                <option value="code">Code</option>
+                <option value="link">Magic Link</option>
+              </select>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!--SMS passwordless form-->
+      <div id="smsform" class="hideOnLoad">
+        <form>
+          <div id="form" class="tabcontent">
+            <div class="input-group input-group-lg">
+              <span class="input-group-addon" id="basic-addon1"><span class="glyphicon glyphicon-globe"></span></span>
+              <select name="countryCode" id="countryCode" class="form-control" aria-describedby="basic-addon1">
+                <option value="+1">+1 United States</option>
+              </select>
+            </div>
+            <div class="input-group input-group-lg">
+              <span class="input-group-addon" id="basic-addon1"><span class="glyphicon glyphicon-phone"></span></span>
+              <input type="tel" id="phone" name="phone" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" required
+                class="form-control" placeholder="your phone number" aria-describedby="basic-addon1">
+            </div>
+          </div>
+        </form>
+      </div>
+
+
+      <!--Code form used by both SMS and email passwordless via OTP-->
+      <div id="plessCodeForm" class="hideOnLoad">
+        <form>
+          <div id="form" class="tabcontent">
+            <div id="codeField" class="input-group input-group-lg">
+              <span class="input-group-addon" id="basic-addon1"><span class="glyphicon glyphicon-comment"></span></span>
+              <input type="text" id="smscode" name="smscode" required class="form-control" placeholder="your code"
+                aria-describedby="basic-addon1">
+            </div>
+            <div class="input-group input-group-lg">
+              <button id="noCode" class="button-as-link" type="button">Did Not get Email?</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!--Magic link screen (currently not used) can be shown when user logs in via magic link-->
+      <div id="magicLink" class="hideOnLoad">
+      </div>
+
+      <!--Login button shared between all forms-->
+      <div class="login-button-container">
+        <button class="login-button" type="button" id="btn-login" type="button">
+          LOG IN >
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.auth0.com/js/auth0/9.14/auth0.min.js"></script>
+  <script src="https://cdn.auth0.com/js/polyfills/1.0/object-assign.min.js"></script>
+  <script>
+    window.addEventListener('load', function () {
+
+      //  var config = JSON.parse(
+      //    decodeURIComponent(escape(window.atob('@@config@@')))
+      //  );
+
+        var config = {
+        auth0Domain: 'danco.auth0.com',
+        clientID: "jQjR4vEb9OOJFRl9GxwUmET8zuNy8Ukb",
+        callbackURL: "http://localhost:4200/callback",
+        internalOptions: {          
+        },
+        authorizationServer: {issuer: ""},
+        extraParams: {              }
+      };
+
+
+      var leeway = config.internalOptions.leeway;
+      if (leeway) {
+        var convertedLeeway = parseInt(leeway);
+
+        if (!isNaN(convertedLeeway)) {
+          config.internalOptions.leeway = convertedLeeway;
+        }
+      }
+
+      var params = Object.assign({
+        overrides: {
+          __tenant: config.auth0Tenant,
+          __token_issuer: config.authorizationServer.issuer
+        },
+        domain: config.auth0Domain,
+        clientID: config.clientID,
+        redirectUri: config.callbackURL,
+        responseType: 'code'
+      }, config.internalOptions);
+
+      var webAuth = new auth0.WebAuth(params);
+
+      var passwordLessWebAuth = new auth0.WebAuth({
+        overrides: {
+          __tenant: config.auth0Tenant,
+          __token_issuer: config.authorizationServer.issuer
+        },
+        domain: config.auth0Domain,
+        clientID: config.clientID,
+        redirectUri: config.callbackURL,
+        responseType: 'code'
+      }, config.internalOptions);
+
+      var databaseConnection = 'Username-Password-Authentication';
+      // var captcha = webAuth.renderCaptcha(
+      //   document.querySelector('.captcha-container')
+      // );
+
+      //used for tab navigation
+      var selectedTab = 'usernameTab';
+
+      //stores the passwordless credentials (email or phone) 
+      var passwordlessCredentials = '';
+
+      //stores the email passwordless type (code or magic link) 
+      var emailPasswordlessType = '';
+
+      //use enter button to submit form
+      document.onkeydown = function () {
+        if (window.event.keyCode == '13') {
+          document.getElementById('btn-login').click();
+        }
+      }
+
+      //validate credentials 
+      function isValidCredential(credential) {
+        let isValid = false;
+
+        //validate email address
+        if (selectedTab === 'emailPwordlessTab' || selectedTab === 'usernameTab') {
+          isValid = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(credential);
+        }
+        else {
+          //Validate US number only. Will require changes for other countries
+          //check for +, country/zip code, phone number 
+          isValid = /^[+]{1}[0-9]{4}[0-9]{7}$/.test(credential);
+        }
+
+        return isValid;
+      }
+
+      //displays messages to user
+      function displayAlert(isError, msg) {
+        var errorMessage = document.getElementById('alertMessage');
+        console.log(errorMessage);
+        errorMessage.className = isError ? 'alert alert-danger' : 'alert alert-success';
+        errorMessage.innerHTML = msg;
+        errorMessage.style.display = 'block';
+      }
+
+      //email/password login 
+      function usernameLogin(e) {
+        e.preventDefault();
+        var button = this;
+        var username = document.getElementById('email').value;
+        var password = document.getElementById('password').value;
+
+        if (!isValidCredential(username) || password == '') {
+          displayAlert(true, 'Please provide a valid email and password');
+          return;
+        }
+
+        button.disabled = true;
+        webAuth.login({
+          realm: databaseConnection,
+          username: username,
+          password: password,
+          //  captcha: captcha.getValue()
+        }, function (err) {
+          if (err) {
+            let errMsg = err.description || 'An error occurred, please try again later';;            
+            displayAlert(true, errMsg);
+          }
+
+          button.disabled = false;
+        });
+      }
+
+      //submit passwordless code (passwordless step 2/2)
+      function passwordlessCode(e) {
+        e.preventDefault();
+        var button = this;
+        var smsCode = document.getElementById("smscode").value;
+
+        if (!smsCode) {
+          displayAlert(true, 'Please provide a code');
+          return;
+        }
+
+        if (selectedTab === 'emailPwordlessTab') {
+          passwordlessLoginReq = {
+            connection: 'email',
+            email: passwordlessCredentials,
+            verificationCode: smsCode
+          }
+
+        }
+        else {
+          passwordlessLoginReq = {
+            connection: 'sms',
+            phoneNumber: passwordlessCredentials,
+            verificationCode: smsCode
+          }
+        }
+
+        webAuth.passwordlessLogin(passwordlessLoginReq,
+          function (err, res) {
+            if (err){
+                let errMsg = err.description || 'An error occurred, please try again later'; 
+                displayAlert(true, errMsg);               
+              }
+          });
+      }
+
+
+      //passwordless (SMS/email) login 
+      function passwordlessLogin(e) {
+        e.preventDefault();
+        var button = this;
+
+        var passwordlessReq = {};
+
+        if (selectedTab === 'emailPwordlessTab') {
+          var selectedEmailTypeSelect = document.getElementById("emailType");
+          var selectedEmailTypeIndex = selectedEmailTypeSelect.selectedIndex;
+          emailPasswordlessType = selectedEmailTypeSelect.options[selectedEmailTypeIndex].value;
+
+          passwordlessCredentials = document.getElementById("emailPless").value;
+
+          passwordlessReq = {
+            connection: 'email',
+            send: emailPasswordlessType,
+            email: passwordlessCredentials
+          }
+        }
+        else {
+          var selectedCountrySelect = document.getElementById("countryCode");
+          var selectedCountryOption = selectedCountrySelect.selectedIndex;
+          var countryCode = selectedCountrySelect.options[selectedCountryOption].value;
+
+          passwordlessCredentials = countryCode + document.getElementById('phone').value;
+
+          passwordlessReq = {
+            connection: 'sms',
+            send: 'code',
+            phoneNumber: passwordlessCredentials
+          }
+        }
+
+
+        if (!isValidCredential(passwordlessCredentials)) {
+
+          let errorMsg = `${passwordlessCredentials} is not a valid ${selectedTab === 'emailPwordlessTab' ? 'email' : 'phone number'}`
+          displayAlert(true, errorMsg);
+          return;
+        }
+
+        try {
+          button.disabled = true;
+          passwordLessWebAuth.passwordlessStart(passwordlessReq,
+            function (err, res) {
+              button.disabled = false;
+              if (err){
+                let errMsg = err.description || 'An error occurred, please try again later'; 
+                displayAlert(true, errMsg);
+                return;                
+              }
+
+              if (emailPasswordlessType === 'code' || selectedTab === 'smsTab')
+                navigationHandler('plessCodeForm');
+              else
+                navigationHandler('magicLinkSent');
+            }
+          );
+        }
+        catch (e) {
+          button.disabled = false;
+          displayAlert(true, e.description);
+        }
+
+      }
+
+      //trigger password reset email
+      function changePassword(e) {
+        e.preventDefault();
+        displayAlert(false, '');
+        var username = document.getElementById('forgotPasswordEmail').value;
+        if (username == '') {
+          displayAlert(true, 'Please enter your email')
+          return;
+        }
+
+        if (!isValidCredential(username)) {
+          displayAlert(true, 'Please sign in with a valid email');
+          return;
+        }
+
+        webAuth.changePassword({
+          connection: databaseConnection,
+          email: username
+        }, function (err) {
+          if (err) {
+            let errMsg = err.description || 'An error occurred, please try again later'; 
+            displayAlert(true, errMsg);
+            return;
+          }
+          displayAlert(false, 'A password reset email should arrive shortly')
+          return;
+        });
+      }
+
+      //sets selected tab to active and handles navigation 
+      function tabNavigationHandler(event) {
+        selectedTab = event.srcElement.id;
+
+        //set all tabs to inactive
+        var tablinks = document.getElementsByClassName("tablinks");
+        for (i = 0; i < tablinks.length; i++) {
+          tablinks[i].className = tablinks[i].className.replace(" activeTab", "");
+        }
+
+        //set the selected tab to active
+        document.getElementById(selectedTab).classList.add('activeTab');
+
+        //display corresponding content
+        navigationHandler(selectedTab);
+
+      }
+
+      //handles navigation from within screens such as "Did not recieve code" and "Forgot Password"
+      function screenNavigationHandler(event) {       
+        
+        let  screenNav = event.srcElement.id === 'forgotPasswordNavBtn' ? 'forgotPassword': selectedTab;          
+        navigationHandler(screenNav)
+      }
+
+      function navigationHandler(view) {
+        var loginBtn = document.getElementById('btn-login');
+        switch (view) {
+          //email/password screen
+          case "usernameTab":
+            document.getElementById('alertMessage').style.display = 'none';
+            document.getElementById('smsform').style.display = 'none';
+            document.getElementById('emailPwordless').style.display = 'none';
+            document.getElementById('plessCodeForm').style.display = 'none';
+            document.getElementById('forgotPasswordForm').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('forgotPasswordNavBtn').addEventListener('click', screenNavigationHandler)
+            
+            buildLoginBtn('LOG IN >', usernameLogin);
+            break;
+          //email passwordless screen
+          case "emailPwordlessTab":
+            document.getElementById('alertMessage').style.display = 'none';
+            document.getElementById('smsform').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('plessCodeForm').style.display = 'none';
+            document.getElementById('forgotPasswordForm').style.display = 'none';
+            document.getElementById('emailPwordless').style.display = 'block';
+
+            buildLoginBtn('LOG IN >', passwordlessLogin);
+            break;
+          //SMS passwordless screen
+          case "smsTab":
+            document.getElementById('alertMessage').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('emailPwordless').style.display = 'none';
+            document.getElementById('plessCodeForm').style.display = 'none';
+            document.getElementById('forgotPasswordForm').style.display = 'none';
+            document.getElementById('smsform').style.display = 'block';
+
+            buildLoginBtn('LOG IN >', passwordlessLogin);
+            break;
+          //Passwordless code screeen (used by both SMS and email OTP)
+          case "plessCodeForm":
+            displayAlert(false, `A code has been sent to ${passwordlessCredentials}`)
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('emailPwordless').style.display = 'none';
+            document.getElementById('smsform').style.display = 'none';
+            document.getElementById('forgotPasswordForm').style.display = 'none';
+            document.getElementById('plessCodeForm').style.display = 'block';
+            document.getElementById('noCode').addEventListener('click', screenNavigationHandler);
+            buildLoginBtn('Submit', passwordlessCode);
+            break;
+          //Email passwordless magic link screen 
+          case "magicLinkSent":
+            displayAlert(false, `A link has been sent to ${passwordlessCredentials}`)
+            document.getElementById('emailPwordless').style.display = 'none';                 
+            buildLoginBtn('Did not get code?', screenNavigationHandler);
+            break;
+          case "forgotPassword":
+            document.getElementById('alertMessage').style.display = 'none';
+            document.getElementById('smsform').style.display = 'none';
+            document.getElementById('emailPwordless').style.display = 'none';
+            document.getElementById('plessCodeForm').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('forgotPasswordForm').style.display = 'block';            
+            buildLoginBtn('SUBMIT >', changePassword);
+            break;
+        }
+      }
+
+      //configure login button text and onclick event when navigating between screens 
+      function buildLoginBtn(setBtnText, setEventListenerFuncName) {
+        var loginBtn = document.getElementById('btn-login');
+
+        //remove all possible onclick event listeners
+        loginBtn.removeEventListener('click', usernameLogin);
+        loginBtn.removeEventListener('click', passwordlessLogin);
+        loginBtn.removeEventListener('click', passwordlessCode);
+        loginBtn.removeEventListener('click', screenNavigationHandler);
+        loginBtn.removeEventListener('click', changePassword);
+
+        //update login button with the specified text and onclick function
+        loginBtn.innerHTML = setBtnText;
+        loginBtn.addEventListener('click', setEventListenerFuncName);
+      }
+
+      //register click events for tabs and U/P login
+      function registerEvents() {
+        document.getElementById('btn-login').addEventListener('click', usernameLogin);
+        document.getElementById('forgotPasswordNavBtn').addEventListener('click', screenNavigationHandler)
+        
+        var tabContainer = document.getElementById('tab-container');
+        console.log(tabContainer.children);
+        for (let i = 0; i < tabContainer.children.length; i++) {
+          tabContainer.children[i].addEventListener('click', tabNavigationHandler);
+        }
+      }
+
+      registerEvents();
+
+    });
+  </script>
+</body>
+
+</html>
